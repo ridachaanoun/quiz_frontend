@@ -4,7 +4,7 @@
       <router-link to="/">Home</router-link> |
       <router-link v-if="!isAuthenticated" to="/register">Register</router-link> |
       <router-link v-if="!isAuthenticated" to="/login">Login</router-link> |
-      <router-link v-if="isAdmin" to="/categories_">Categories</router-link>
+      <router-link v-if="isAdmin" to="/Dashboard">Dashboard</router-link>  |
       <span v-if="isAuthenticated">Welcome, {{ username }}!</span>
       <button v-if="isAuthenticated" @click="logout">Logout</button>
     </nav>
