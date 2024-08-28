@@ -1,38 +1,36 @@
-// // src/store/modules/categories.js
-// import axios from '../../plugins/axios'; // Adjust the path based on your project structure
+// store/modules/categories.js
 
-// export default {
-//   namespaced: true,
-//   state: {
-//     categories: [],
-//   },
-//   mutations: {
-//     setCategories(state, categories) {
-//       state.categories = categories;
-//     },
-//     addCategory(state, category_) {
-//       state.categories.push(category_);
-//     },
-//   },
-//   actions: {
-//     async createCategory({ commit }, formData) {
-//       try {
-//         const token = localStorage.getItem('token');
-//         if (!token) {
-//           throw new Error('No token found');
-//         }
+import axios from '@/plugins/axios';
 
-//         const response = await axios.post('categories', formData, {
-//           headers: {
-//             Authorization: `Bearer ${token}`,
-//           },
-//         });
-//         commit('addCategory', response.data.category);
-//         return response.data;
-//       } catch (error) {
-//         console.error('Category creation error:', error.response.data);
-//         throw error;
-//       }
-//     },
-//   },
-// };
+const state = {
+  categories: []
+};
+
+const getters = {
+  allCategories: (state) => state.categories
+};
+
+const actions = {
+  async fetchCategories({ commit }) {
+    try {
+      const response = await axios.get('categories');
+      commit('setCategories', response.data.categories);
+    } catch (error) {
+      console.error('Failed to fetch categories:', error.response ? error.response.data : error);
+    }
+  }
+};
+
+const mutations = {
+  setCategories(state, categories) {
+    state.categories = categories;
+  }
+};
+
+export default {
+  namespaced: true,
+  state,
+  getters,
+  actions,
+  mutations
+};
