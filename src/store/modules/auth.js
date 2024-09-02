@@ -1,4 +1,3 @@
-// src/store/modules/auth.js
 import axios from '../../plugins/axios';
 
 export default {
@@ -57,10 +56,11 @@ export default {
     async fetchUserData({ commit }) {
       try {
         const response = await axios.get('user');
-        commit('setUserData', response.data);
-        return response.data;
+        // Update to handle new API response structure
+        commit('setUserData', response.data.profile); // Use response.data.profile
+        return response.data.profile;
       } catch (error) {
-        console.error('Error fetching user data:', error.response ? error.response.data : error);
+        console.error('Error fetching user data:', error.response ? error.response.data : error.message);
         throw error;
       }
     },
@@ -76,7 +76,7 @@ export default {
       return state.userData && (state.userData.role === 'admin' || state.userData.role === 'super_admin');
     },
     username(state) {
-      return state.userData ? state.userData.name : '';
+      return state.userData?.user?.name ?? '';
     },
   },
 };
