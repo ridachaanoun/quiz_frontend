@@ -75,6 +75,9 @@ export default {
     isAdmin(state) {
       return state.userData && (state.userData.role === 'admin' || state.userData.role === 'super_admin');
     },
+    isSuperAdmin(state) {
+      return state.userData && (state.userData.role === 'super_admin');
+    },
     username(state) {
       return state.userData?.user?.name ?? '';
     },

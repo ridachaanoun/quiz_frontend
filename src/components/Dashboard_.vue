@@ -2,12 +2,7 @@
 <template>
     <div class="flex">
       <!-- Sidebar -->
-      <Sidebar />
-  
-      <!-- Main Content -->
-      <div class="w-3/4 p-6">
-        <!-- <router-view /> -->
-      </div>
+      <Sidebar /> 
     </div>
   </template>
   
