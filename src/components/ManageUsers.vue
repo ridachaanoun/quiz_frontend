@@ -1,73 +1,97 @@
 <template>
-    <div>
-      <h2 class="text-xl font-bold mb-4">Manage Users</h2>
-      <ul>
-        <li v-for="user in userList" :key="user.id" class="mb-4 p-4 border border-gray-700 rounded">
-          <img v-if="user.profile_picture_url" :src="`http://localhost:8000${user.profile_picture_url}`" alt="Profile Picture" class="w-16 h-16 rounded-full" />
-          <p><strong>Name:</strong> {{ user.user.name }}</p>
-          <p><strong>Email:</strong> {{ user.user.email }}</p>
-          <p><strong>Role:</strong> 
-            <template v-if="isSuperAdmin">
-                <span>{{ user.role_name }}</span>
-              <select v-model="user.role_id" @change="updateRole(user.id, user.role_id)">
-                <option v-for="role in roles" :key="role.id" :value="role.id">
+  <div class="container mx-auto p-4">
+    <h2 class="text-2xl font-bold text-gray-800 mb-6 text-center">Manage Users</h2>
+    <ul class="grid gap-6 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+      <li
+        v-for="user in userList"
+        :key="user.id"
+        class="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300"
+      >
+        <div class="flex items-center space-x-4 mb-4">
+          <img
+            v-if="user.profile_picture_url"
+            :src="`http://localhost:8000${user.profile_picture_url}`"
+            alt="Profile Picture"
+            class="w-16 h-16 rounded-full object-cover"
+          />
+          <div>
+            <p class="text-lg font-semibold text-gray-700">{{ user.user.name }}</p>
+            <p class="text-sm text-gray-500">{{ user.user.email }}</p>
+          </div>
+        </div>
+        <div>
+          <p class="text-sm font-medium text-gray-600 mb-2">Role:</p>
+          <template v-if="isSuperAdmin">
+            <div class="relative">
+              <select
+                v-model="user.role_id"
+                @change="updateRole(user.id, user.role_id)"
+                class="block px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              >
+                <option :value="user.role_id">{{ user.role_name }}</option>
+                <option
+                  v-for="role in roles"
+                  :key="role.id"
+                  :value="role.id"
+                  :disabled="role.id === user.role_id"
+                >
                   {{ role.name }}
                 </option>
               </select>
-            </template>
-            <template v-else>
-              <span>{{ user.role_name }}</span>
-            </template>
-          </p>
-        </li>
-      </ul>
-    </div>
-  </template>
-  
-  <script>
-  import axios from '@/plugins/axios';
-  import { mapGetters, mapActions } from 'vuex';
-  
-  export default {
-    name: 'ManageUsers',
-    data() {
-      return {
-        roles: [
-          { id: 1, name: 'Admin' },
-          { id: 2, name: 'User' },
-          { id: 3, name: 'Super Admin' }
-        ]
-      };
+            </div>
+          </template>
+          <template v-else>
+            <span class="text-gray-700">{{ user.role_name }}</span>
+          </template>
+        </div>
+      </li>
+    </ul>
+  </div>
+</template>
+
+<script>
+import axios from '@/plugins/axios';
+import { mapGetters, mapActions } from 'vuex';
+
+export default {
+  name: 'ManageUsers',
+  data() {
+    return {
+      roles: [
+        { id: 1, name: 'Admin' },
+        { id: 2, name: 'User' },
+        { id: 3, name: 'Super Admin' }
+      ]
+    };
+  },
+  computed: {
+    ...mapGetters('users', ['allUsers']),
+    userList() {
+      return this.$store.getters['users/allUsers'];
     },
-    computed: {
-      ...mapGetters('users', ['allUsers']),
-      userList() {
-        return this.$store.getters['users/allUsers'];
-      },
-      isSuperAdmin() {
-        return this.$store.getters['auth/isSuperAdmin'];
-      }
-    },
-    created() {
-      this.fetchUsers();
-    },
-    methods: {
-      ...mapActions('users', ['fetchUsers']),
-      async updateRole(userId, roleId) {
-        try {
-          await axios.post(`http://localhost:8000/api/users/${userId}/role`, { role_id: roleId });
-          console.log('User role updated successfully.');
-          // Optionally refresh the user list
-          this.fetchUsers();
-        } catch (error) {
-          console.error('Error updating role:', error);
-        }
+    isSuperAdmin() {
+      return this.$store.getters['auth/isSuperAdmin'];
+    }
+  },
+  created() {
+    this.fetchUsers();
+  },
+  methods: {
+    ...mapActions('users', ['fetchUsers']),
+    async updateRole(userId, roleId) {
+      try {
+        await axios.put(`http://localhost:8000/api/users/${userId}/role`, { role_id: roleId });
+        console.log('User role updated successfully.');
+        // Optionally refresh the user list
+        this.fetchUsers();
+      } catch (error) {
+        console.error('Error updating role:', error);
       }
     }
-  };
-  </script>
-  
-  <style scoped>
-  /* Add styles if needed */
-  </style>
-  
+  }
+};
+</script>
+
+<style scoped>
+/* Add custom styles here if needed */
+</style>

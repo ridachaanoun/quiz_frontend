@@ -1,24 +1,31 @@
 <template>
   <div>
-    <h1 class="text-2xl font-bold mb-4" v-if="!selectedQuiz">Manage Quizzes</h1>
-    <!-- Search Bar -->
-    <input
-      v-if="!selectedQuiz"
-      v-model="searchQuery"
-      type="text"
-      placeholder="Search quizzes by title..."
-      class="w-full mb-4 p-2 border border-gray-300 rounded-md"
-    />
+    <h1 class="text-2xl font-bold mb-4 text-center" v-if="!selectedQuiz">Manage Quizzes</h1>
+    
+    <!-- Filter and Search Bar -->
+    <div v-if="!selectedQuiz" class="flex justify-between items-center mb-4">
+      <!-- Filter by Category -->
+      <div class=" pr-2 flex items-center">
+        <i class="fas fa-filter text-gray-500 mr-2"></i>
+        <label for="categoryFilter" class="block text-gray-700">Filter by Category</label>
+        <select v-model="selectedCategory" id="categoryFilter" class="w-full border-gray-300 rounded-md shadow-sm">
+          <option value="">All Categories</option>
+          <option v-for="category in categories" :key="category.id" :value="category.id">
+            {{ category.name }}
+          </option>
+        </select>
+      </div>
 
-    <!-- Filter by Category -->
-    <div v-if="!selectedQuiz" class="mb-4">
-      <label for="categoryFilter" class="block text-gray-700">Filter by Category</label>
-      <select v-model="selectedCategory" id="categoryFilter" class="w-full border-gray-300 rounded-md shadow-sm">
-        <option value="">All Categories</option>
-        <option v-for="category in categories" :key="category.id" :value="category.id">
-          {{ category.name }}
-        </option>
-      </select>
+      <!-- Search Bar -->
+      <div class=" pl-2 flex items-center">
+        <i class="fas fa-search text-gray-500 mr-2"></i>
+        <input
+          v-model="searchQuery"
+          type="text"
+          placeholder="Search quizzes by title..."
+          class="w-full p-2 border border-gray-300 rounded-md"
+        />
+      </div>
     </div>
 
     <!-- Button to Open Modal for Creating Quiz -->
@@ -85,40 +92,47 @@
       </form>
     </Modal>
 
-  <!-- Quiz Details -->
-  <QuizDetails v-if="selectedQuiz" :id="selectedQuiz" @back="selectedQuiz = null" />
+    <!-- Quiz Details -->
+    <QuizDetails v-if="selectedQuiz" :id="selectedQuiz" @back="selectedQuiz = null" />
 
-<!-- Display Quizzes with Pagination -->
-<div v-if="paginatedQuizzes.length && !selectedQuiz" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 ">
-  <div v-for="quiz in paginatedQuizzes" :key="quiz.id" :style="{ backgroundImage: `url('http://127.0.0.1:8000/storage/${quiz.image}')` }" class="relative bg-cover bg-center h-64 rounded-md overflow-hidden">
-    <div class="p-4 absolute inset-0 bg-black bg-opacity-50 flex items-center justify-between">
-      <div class="text-white" @click="selectQuiz(quiz.id)">
-        <h2 class="text-lg font-semibold cursor-pointer">{{ quiz.title }}</h2>
-        <p>{{ quiz.description }}</p>
-      </div>
-      <div>
-        <button @click="editQuiz(quiz)" class="text-yellow-400 hover:text-yellow-600 mr-2">Edit</button>
-        <button @click="deleteQuiz(quiz.id)" class="text-red-600 hover:text-red-800">Delete</button>
+    <!-- Display Quizzes with Pagination -->
+    <div v-if="paginatedQuizzes.length && !selectedQuiz" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 ">
+      <div v-for="quiz in paginatedQuizzes" :key="quiz.id" :style="{ backgroundImage: `url('http://127.0.0.1:8000/storage/${quiz.image}')` }" class="relative bg-cover bg-center h-64 rounded-md overflow-hidden">
+        <div class="p-4 absolute inset-0 bg-black bg-opacity-50 flex items-center justify-between">
+          <div class="text-white" @click="selectQuiz(quiz.id)">
+            <h2 class="text-lg font-semibold cursor-pointer">{{ quiz.title }}</h2>
+            <p>{{ quiz.description }}</p>
+          </div>
+          <div>
+            <button @click="editQuiz(quiz)" class="text-yellow-400 hover:text-yellow-600 mr-2"><i class="fas fa-edit"></i></button>
+            <button @click="deleteQuiz(quiz.id)" class="text-red-600 hover:text-red-800"><i class="fas fa-trash-alt"></i></button>
+          </div>
+        </div>
       </div>
     </div>
-  </div>
-</div>
-<div v-else-if="!selectedQuiz">No quizzes found</div>
+    <div v-else-if="!selectedQuiz">No quizzes found</div>
 
     <!-- Pagination Controls -->
     <div v-if="!selectedQuiz" class="flex justify-center mt-6">
       <button @click="prevPage" :disabled="currentPage === 1" class="px-4 py-2 mx-1 bg-gray-300 rounded-md hover:bg-gray-400">
-        Previous
+        <i class="fas fa-chevron-left"></i> Previous
       </button>
       <button v-for="page in totalPages" :key="page" @click="changePage(page)" :class="['px-4 py-2 mx-1 rounded-md', { 'bg-indigo-600 text-white': page === currentPage, 'bg-gray-300 hover:bg-gray-400': page !== currentPage }]">
         {{ page }}
       </button>
       <button @click="nextPage" :disabled="currentPage === totalPages" class="px-4 py-2 mx-1 bg-gray-300 rounded-md hover:bg-gray-400">
-        Next
+        Next <i class="fas fa-chevron-right"></i>
       </button>
     </div>
   </div>
 </template>
+
+<style scoped>
+/* Add any additional styles here */
+</style>
+
+
+
 
 <script>
 import { mapGetters, mapActions } from 'vuex';

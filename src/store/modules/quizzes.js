@@ -26,6 +26,8 @@ export default {
         const response = await axios.get(`quizzes/${id}`);
         commit('setCurrentQuiz', response.data.quiz);
         commit('setQuizQuestions', response.data.quiz.questions); // Ensure this line is correct
+      console.log(response.data.quiz)
+
       } catch (error) {
         console.error('Failed to fetch quiz:', error);
       }
