@@ -11,7 +11,7 @@ import Dashboard from '@/components/Dashboard_.vue';
 import QuizDetailsView from '@/components/QuizDetailsView.vue'; // Ensure only one is used
 import QuizQuestionView from '@/components/QuizQuestionView.vue';
 import QuizResultView from '@/components/QuizResultView.vue';
-
+import UserProfileView from '@/components/UserProfileView.vue';
 // Define Routes
 const routes = [
   {
@@ -57,6 +57,11 @@ const routes = [
     name: 'QuizResultView',
     component: QuizResultView,
     props: route => ({ score: Number(route.query.score) }), // Read from query parameters
+  },
+  {
+    path: '/user/:userId',
+    name: 'UserProfileView',
+    component: UserProfileView,
   },
 ];
 

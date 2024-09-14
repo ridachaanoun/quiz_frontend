@@ -9,6 +9,21 @@
         <h1 class="text-3xl font-bold">{{ quiz.title }}</h1>
       </div>
       <img :src="`http://127.0.0.1:8000/storage/${quiz.image}`" alt="Quiz Image" class="mt-4 w-full max-w-md mx-auto rounded-lg shadow-lg" />
+      
+      <!-- Display Quiz Creator Info -->
+<div v-if="quizCreatorProfile" class="mt-4 flex items-center">
+  <img
+    :src="`http://127.0.0.1:8000${quizCreatorProfile.profile_picture_url}`"
+    alt="Profile Picture"
+    class="w-12 h-12 rounded-full mr-4 cursor-pointer"
+    @click="goToUserProfile(quizCreatorProfile.user.id)"
+  />
+  <div>
+    <span class="block text-md font-medium text-gray-600">Created by:</span>
+    <p class="text-lg">{{ quizCreatorProfile.user.name }}</p>
+  </div>
+</div>
+
       <div class="mt-4">
         <span class="block text-lg font-medium text-gray-600">Description</span>
         <p class="text-lg">{{ quiz.description }}</p>
@@ -33,11 +48,11 @@ export default {
   data() {
     return {
       quiz: null,
-      backgroundImage: null, // Replace with your background image URL
+      backgroundImage: null,
     };
   },
   computed: {
-    ...mapGetters('quizzes', ['currentQuiz']),
+    ...mapGetters('quizzes', ['currentQuiz', 'quizCreatorProfile']),
   },
   watch: {
     id: 'fetchQuiz',
@@ -50,8 +65,7 @@ export default {
     async fetchQuiz() {
       await this.fetchQuizById(this.id);
       this.quiz = this.currentQuiz;
-      // Update the background image based on the quiz data if needed
-      this.backgroundImage = `http://127.0.0.1:8000/storage/${this.quiz?.image}`; // Ensure quiz is defined
+      this.backgroundImage = `http://127.0.0.1:8000/storage/${this.quiz?.image}`;
     },
     goBack() {
       this.$router.go(-1);
@@ -59,6 +73,9 @@ export default {
     startQuiz() {
       this.$router.push({ name: 'QuizQuestionView', params: { id: this.id, questionIndex: 0 } });
     },
+    goToUserProfile(userId) {
+    this.$router.push({ name: 'UserProfileView', params: { userId } });
+  },
   },
 };
 </script>
