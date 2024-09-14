@@ -1,8 +1,34 @@
 <template>
   <div class="home">
-    <p>{{ username }}</p>
+    <!-- <p>{{ username }}</p> -->
     <div v-if="!selectedQuiz">
       <h1 class="text-2xl font-bold mb-4 text-center">All Quizzes</h1>
+      
+      <!-- Filter and Search Bar -->
+      <div class="flex justify-between items-center mb-4">
+        <!-- Filter by Category -->
+        <div class="pr-2 flex items-center">
+          <i class="fas fa-filter text-gray-500 mr-2"></i>
+          <label for="categoryFilter" class="block text-gray-700">Filter by Category</label>
+          <select v-model="selectedCategory" id="categoryFilter" class="w-full border-gray-300 rounded-md shadow-sm">
+            <option value="">All Categories</option>
+            <option v-for="category in categories" :key="category.id" :value="category.id">
+              {{ category.name }}
+            </option>
+          </select>
+        </div>
+
+        <!-- Search Bar -->
+        <div class="pl-2 flex items-center">
+          <i class="fas fa-search text-gray-500 mr-2"></i>
+          <input
+            v-model="searchQuery"
+            type="text"
+            placeholder="Search quizzes by title..."
+            class="w-full p-2 border border-gray-300 rounded-md"
+          />
+        </div>
+      </div>
 
       <div v-if="paginatedQuizzes.length" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <div v-for="quiz in paginatedQuizzes" :key="quiz.id" :style="{ backgroundImage: `url('http://127.0.0.1:8000/storage/${quiz.image}')` }" class="relative bg-cover bg-center h-64 rounded-md overflow-hidden">
@@ -34,7 +60,6 @@
 
 <script>
 import { mapGetters, mapActions } from 'vuex';
-// import { useRouter } from 'vue-router';
 
 export default {
   name: 'HomeView',
@@ -42,28 +67,53 @@ export default {
     return {
       currentPage: 1, // Track the current page
       quizzesPerPage: 8, // Quizzes per page
+      searchQuery: '', // Search query data property
+      selectedCategory: '', // Track the selected category
     };
   },
   computed: {
     ...mapGetters('auth', ['username']),
     ...mapGetters('quizzes', ['quizzes']),
+    categories() {
+      return this.$store.getters['categories/allCategories']; // Use the getter from Vuex
+    },
+    filteredQuizzes() {
+      let filtered = this.quizzes;
+
+      if (this.selectedCategory) {
+        filtered = filtered.filter(quiz => quiz.category_id === this.selectedCategory);
+      }
+
+      if (this.searchQuery) {
+        filtered = filtered.filter(quiz => 
+          quiz.title.toLowerCase().includes(this.searchQuery.toLowerCase())
+        );
+      }
+
+      return filtered;
+    },
     paginatedQuizzes() {
       const start = (this.currentPage - 1) * this.quizzesPerPage;
       const end = start + this.quizzesPerPage;
-      return this.quizzes.slice(start, end);
+      return this.filteredQuizzes.slice(start, end);
     },
     totalPages() {
-      return Math.ceil(this.quizzes.length / this.quizzesPerPage);
+      return Math.ceil(this.filteredQuizzes.length / this.quizzesPerPage);
     },
   },
   created() {
     this.fetchQuizzes();
+    this.fetchCategories(); // Fetch categories from Vuex
   },
   methods: {
     ...mapActions('quizzes', ['fetchQuizzes']),
+    fetchCategories() {
+      // Assuming you have a Vuex action to fetch categories
+      this.$store.dispatch('categories/fetchCategories');
+    },
     goToQuizDetails(id) {
-    this.$router.push({ name: 'QuizDetails', params: { id } });
-  },
+      this.$router.push({ name: 'QuizDetails', params: { id } });
+    },
     prevPage() {
       if (this.currentPage > 1) this.currentPage--;
     },
@@ -76,3 +126,7 @@ export default {
   },
 };
 </script>
+
+<style scoped>
+/* Add any additional styles here */
+</style>

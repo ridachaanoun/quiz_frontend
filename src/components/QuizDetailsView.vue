@@ -1,110 +1,68 @@
 <template>
-  <div class="quiz-details">
-    <h1 class="text-2xl font-bold mb-4">{{ quiz.title }}</h1>
-    <img :src="`http://localhost:8000/storage/${quiz.image}`" alt="Quiz Image" class="mb-4" />
-
-    <div v-for="question in quiz.questions" :key="question.id" class="mb-4">
-      <h2 class="text-lg font-semibold">{{ question.question }}</h2>
-      <div v-for="(option, key) in question.options" :key="key">
-        <input
-          type="radio"
-          :name="`question-${question.id}`"
-          :value="key"
-          v-model="userAnswers[question.id]"
-          :id="`${question.id}-${key}`"
-        />
-        <label :for="`${question.id}-${key}`">{{ option }}</label>
+  <div class="relative flex flex-col items-center p-4 min-h-screen bg-cover bg-center" :style="{ backgroundImage: `url(${backgroundImage})` }">
+    <button @click="goBack" class="btn btn-primary mb-4">Back</button>
+    
+    <!-- Quiz Details -->
+    <div v-if="quiz" class="relative w-full max-w-lg text-center bg-white bg-opacity-80 p-6 rounded-lg shadow-lg">
+      <div class="mb-4">
+        <span class="block text-lg font-medium text-gray-600">Quiz Title</span>
+        <h1 class="text-3xl font-bold">{{ quiz.title }}</h1>
       </div>
+      <img :src="`http://127.0.0.1:8000/storage/${quiz.image}`" alt="Quiz Image" class="mt-4 w-full max-w-md mx-auto rounded-lg shadow-lg" />
+      <div class="mt-4">
+        <span class="block text-lg font-medium text-gray-600">Description</span>
+        <p class="text-lg">{{ quiz.description }}</p>
+      </div>
+      <button @click="startQuiz" class="bg-green-500 text-white py-2 px-4 rounded hover:bg-green-600 mt-4">Start Quiz</button>
     </div>
-
-    <button @click="submitAttempt" class="px-4 py-2 bg-blue-600 text-white rounded">
-      Submit Quiz
-    </button>
+    
+    <!-- Loading Indicator -->
+    <div v-else class="flex flex-col items-center justify-center w-full h-full">
+      <i class="fas fa-spinner fa-spin text-4xl text-blue-600"></i>
+      <p class="mt-4 text-lg">Loading...</p>
+    </div>
   </div>
 </template>
 
 <script>
-import axios from 'axios'; // Import Axios
+import { mapGetters, mapActions } from 'vuex';
 
 export default {
   name: 'QuizDetailsView',
-  props: {
-    id: {
-      type: Number,
-      required: true,
-    },
-  },
+  props: ['id'],
   data() {
     return {
-      quiz: {
-        title: '',
-        image: '',
-        questions: [],
-      },
-      userAnswers: {},
+      quiz: null,
+      backgroundImage: null, // Replace with your background image URL
     };
   },
   computed: {
-    // Assuming you have a Vuex store setup to fetch the quiz details
-    currentQuiz() {
-      return this.$store.getters['quizzes/currentQuiz'];
-    },
+    ...mapGetters('quizzes', ['currentQuiz']),
   },
   watch: {
-    currentQuiz(newQuiz) {
-      if (newQuiz) {
-        this.quiz = newQuiz;
-        newQuiz.questions.forEach(question => {
-          this.userAnswers[question.id] = '';
-        });
-      }
-    },
+    id: 'fetchQuiz',
   },
   created() {
-    this.fetchQuizById(this.id);
+    this.fetchQuiz();
   },
   methods: {
-    fetchQuizById(id) {
-      this.$store.dispatch('quizzes/fetchQuizById', id);
+    ...mapActions('quizzes', ['fetchQuizById']),
+    async fetchQuiz() {
+      await this.fetchQuizById(this.id);
+      this.quiz = this.currentQuiz;
+      // Update the background image based on the quiz data if needed
+      this.backgroundImage = `http://127.0.0.1:8000/storage/${this.quiz?.image}`; // Ensure quiz is defined
     },
-    async submitAttempt() {
-  try {
-    const score = this.calculateScore();
-
-    // Retrieve the token from localStorage
-    const token = localStorage.getItem('authToken');
-
-    if (!token) {
-      throw new Error('No authentication token found');
-    }
-
-    // Send the POST request to save the attempt
-    const response = await axios.post(
-      `http://localhost:8000/api/quizzes/${this.id}/attempts`,
-      {
-        score: score,
-      },
-      {
-        headers: {
-          Authorization: `Bearer ${token}`, // Add the Authorization header
-        },
-      }
-    );
-
-    console.log('Attempt submitted successfully:', response.data);
-  } catch (error) {
-    console.error('Failed to submit attempt:', error);
-  }
-}
-,
-    calculateScore() {
-      // Placeholder: Logic to calculate score based on user answers
-      return 50; // Replace with actual score calculation logic
+    goBack() {
+      this.$router.go(-1);
+    },
+    startQuiz() {
+      this.$router.push({ name: 'QuizQuestionView', params: { id: this.id, questionIndex: 0 } });
     },
   },
 };
 </script>
 
 <style scoped>
-/* Add any additional styles here */
+/* Add any additional scoped styles here */
 </style>

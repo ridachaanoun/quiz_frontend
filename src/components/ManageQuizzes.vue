@@ -132,8 +132,6 @@
 </style>
 
 
-
-
 <script>
 import { mapGetters, mapActions } from 'vuex';
 import Modal from '@/components/CreateQuizModal.vue'; // Adjust the path as necessary

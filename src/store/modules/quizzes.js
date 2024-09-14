@@ -5,12 +5,14 @@ export default {
   state: {
     quizzes: [],
     currentQuiz: null,
-    quizQuestions: []
+    quizQuestions: [],
+    userAnswers: {},
   },
   getters: {
     quizzes: (state) => state.quizzes,
     currentQuiz: (state) => state.currentQuiz,
-    quizQuestions: (state) => state.quizQuestions
+    quizQuestions: (state) => state.quizQuestions,
+    userAnswers: (state) => state.userAnswers,
   },
   actions: {
     async fetchQuizzes({ commit }) {
@@ -25,13 +27,14 @@ export default {
       try {
         const response = await axios.get(`quizzes/${id}`);
         commit('setCurrentQuiz', response.data.quiz);
-        commit('setQuizQuestions', response.data.quiz.questions); // Ensure this line is correct
-      console.log(response.data.quiz)
-
+        commit('setQuizQuestions', response.data.quiz.questions);
       } catch (error) {
         console.error('Failed to fetch quiz:', error);
       }
-    }
+    },
+    saveAnswer({ commit }, { questionId, answer }) {
+      commit('setUserAnswer', { questionId, answer });
+    },
   },
   mutations: {
     setQuizzes(state, quizzes) {
@@ -42,6 +45,10 @@ export default {
     },
     setQuizQuestions(state, questions) {
       state.quizQuestions = questions;
-    }
-  }
+    },
+    setUserAnswer(state, { questionId, answer }) {
+      state.userAnswers = { ...state.userAnswers, [questionId]: answer };
+    },
+  },
 };
+
