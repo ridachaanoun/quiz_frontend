@@ -1,5 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router';
-import store from '@/store'; // Vuex store
+import store from '@/store';
 
 // Import Views and Components
 import Home from '@/views/HomeView.vue';
@@ -16,11 +16,7 @@ const routes = [
   { path: '/', component: Home, name: 'Home', meta: { requiresAuth: true } },
   { path: '/login', component: UserLogin, meta: { requiresAuth: false } },
   { path: '/register', component: UserRegister, meta: { requiresAuth: false } },
-  { 
-    path: '/dashboard', 
-    component: Dashboard, 
-    meta: { requiresAuth: true, requiresAdmin: true } // Add `requiresAdmin` meta
-  },
+  { path: '/dashboard', component: Dashboard, meta: { requiresAuth: true, requiresAdmin: true } },
   {
     path: '/quiz/:id',
     name: 'QuizDetails',
@@ -56,23 +52,25 @@ const router = createRouter({
   routes,
 });
 
-// Navigation Guard
-router.beforeEach((to, from, next) => {
+// Navigation Guard for Authenticated Routes
+router.beforeEach(async (to, from, next) => {
   const isAuthenticated = store.getters['auth/isAuthenticated'];
-  const isAdmin = store.getters['auth/isAdmin']; // Use the isAdmin getter
+  const isAdmin = store.getters['auth/isAdmin'];
+
+  if (isAuthenticated && !store.state.auth.userData) {
+    // Fetch user data if not already set
+    await store.dispatch('auth/fetchUserData');
+  }
 
   if (to.meta.requiresAuth) {
     if (!isAuthenticated) {
       console.log('User not authenticated, redirecting to /login');
       next('/login');
+    } else if (to.meta.requiresAdmin && !isAdmin) {
+      console.log('User is not an admin, redirecting to /');
+      next('/');
     } else {
-      // If the route requires admin privileges, check if the user is an admin
-      if (to.meta.requiresAdmin && !isAdmin) {
-        console.log('User is not an admin, redirecting to /');
-        next('/');  // Redirect to home if not an admin
-      } else {
-        next();  // Proceed if authenticated and has the required role
-      }
+      next();  // Proceed if authenticated and has the required role
     }
   } else {
     next();  // Proceed if no authentication is required

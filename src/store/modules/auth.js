@@ -26,25 +26,18 @@ export default {
     async register({ commit, dispatch }, formData) {
       try {
         const response = await axios.post('register', formData);
-        commit('setUserData', response.data.user);
-        commit('setToken', response.data.token);
-        await dispatch('fetchUserData');
+        commit('setToken', response.data.token); // Set the token in Vuex
+        await dispatch('fetchUserData'); // Fetch user data from the server
         return response.data;
       } catch (error) {
-        if (error.response && error.response.data) {
-          return Promise.reject(error.response.data);
-        } else {
-          return Promise.reject({ message: 'An unexpected error occurred' });
-        }
+        return Promise.reject(error.response.data || { message: 'Unexpected error' });
       }
     },
     async login({ commit, dispatch }, formData) {
       try {
         const response = await axios.post('login', formData);
-        // Ensure token and user data are in the response
-        commit('setUserData', response.data.user);  // Set the user data
-        commit('setToken', response.data.token);    // Set the token in Vuex
-        await dispatch('fetchUserData');            // Fetch additional user data if needed
+        commit('setToken', response.data.token); // Set the token in Vuex
+        await dispatch('fetchUserData'); // Fetch user data from the server
         return response.data;
       } catch (error) {
         return Promise.reject(error.response.data || { message: 'Unexpected error' });
@@ -52,6 +45,7 @@ export default {
     },
     async fetchUserData({ commit }) {
       try {
+        console.log(11)
         const response = await axios.get('user');
         // Update to handle new API response structure
         commit('setUserData', response.data.profile); // Use response.data.profile
@@ -63,7 +57,7 @@ export default {
     },
     logout({ commit }) {
       commit('clearAuthData');
-      location.reload()
+      location.reload();
     },
   },
   getters: {
