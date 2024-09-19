@@ -4,7 +4,7 @@ export default {
   namespaced: true,
   state: {
     userData: null,
-    token: localStorage.getItem('token') || null,
+    token: sessionStorage.getItem('token') || null, // Store token in session storage
   },
   mutations: {
     setUserData(state, userData) {
@@ -12,13 +12,13 @@ export default {
     },
     setToken(state, token) {
       state.token = token;
-      localStorage.setItem('token', token);
-      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+      sessionStorage.setItem('token', token);  // Persist token in session storage
+      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`; // Set token for Axios requests
     },
     clearAuthData(state) {
       state.userData = null;
       state.token = null;
-      localStorage.removeItem('token');
+      sessionStorage.removeItem('token'); // Use session storage
       delete axios.defaults.headers.common['Authorization'];
     },
   },
@@ -41,16 +41,13 @@ export default {
     async login({ commit, dispatch }, formData) {
       try {
         const response = await axios.post('login', formData);
-        commit('setUserData', response.data.user);
-        commit('setToken', response.data.token);
-        await dispatch('fetchUserData');
+        // Ensure token and user data are in the response
+        commit('setUserData', response.data.user);  // Set the user data
+        commit('setToken', response.data.token);    // Set the token in Vuex
+        await dispatch('fetchUserData');            // Fetch additional user data if needed
         return response.data;
       } catch (error) {
-        if (error.response && error.response.data) {
-          return Promise.reject(error.response.data);
-        } else {
-          return Promise.reject({ message: 'An unexpected error occurred' });
-        }
+        return Promise.reject(error.response.data || { message: 'Unexpected error' });
       }
     },
     async fetchUserData({ commit }) {
@@ -66,6 +63,7 @@ export default {
     },
     logout({ commit }) {
       commit('clearAuthData');
+      location.reload()
     },
   },
   getters: {

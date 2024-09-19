@@ -66,7 +66,7 @@ export default {
   data() {
     return {
       currentPage: 1, // Track the current page
-      quizzesPerPage: 8, // Quizzes per page
+      quizzesPerPage: 16, // Quizzes per page
       searchQuery: '', // Search query data property
       selectedCategory: '', // Track the selected category
     };
