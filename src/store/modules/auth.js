@@ -45,7 +45,6 @@ export default {
     },
     async fetchUserData({ commit }) {
       try {
-        console.log(11)
         const response = await axios.get('user');
         // Update to handle new API response structure
         commit('setUserData', response.data.profile); // Use response.data.profile
@@ -72,6 +71,12 @@ export default {
     },
     username(state) {
       return state.userData?.user?.name ?? '';
+    },
+    userId(state) {
+      return state.userData?.user?.id ?? '';
+    },
+    userProfile(state) {
+      return state.userData;
     },
   },
 };

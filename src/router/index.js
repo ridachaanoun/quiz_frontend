@@ -10,6 +10,7 @@ import QuizDetailsView from '@/components/QuizDetailsView.vue';
 import QuizQuestionView from '@/components/QuizQuestionView.vue';
 import QuizResultView from '@/components/QuizResultView.vue';
 import UserProfileView from '@/components/UserProfileView.vue';
+import UserProfile from '../components/UserProfile.vue'; // Import the new component
 
 // Define Routes
 const routes = [
@@ -43,6 +44,12 @@ const routes = [
     name: 'UserProfileView',
     component: UserProfileView,
     meta: { requiresAuth: true }
+  },
+  {
+    path: '/profile',
+    name: 'UserProfile',
+    component: UserProfile,
+    meta: { requiresAuth: true } // Ensure authentication is required for this route
   },
 ];
 

@@ -1,6 +1,6 @@
 <template>
   <div>
-    <nav v-if="isAuthenticated" class="bg-gray-800 p-4 flex items-center justify-between flex-wrap">
+    <nav v-if="isAuthenticated" class="bg-sky-600 p-4 flex items-center justify-between flex-wrap">
       <!-- Brand / Home Link -->
       <div class="flex items-center flex-shrink-0 text-white mr-6">
         <router-link class="font-semibold text-xl tracking-tight" to="/">
@@ -27,10 +27,13 @@
         <div class="text-sm lg:flex-grow">
           <router-link v-if="isAdmin" class="block mt-4 lg:inline-block lg:mt-0 text-gray-200 hover:text-white mr-4"
             to="/dashboard">Dashboard</router-link>
+          <router-link v-if="isAuthenticated" class="block mt-4 lg:inline-block lg:mt-0 text-gray-200 hover:text-white mr-4"
+            :to="`/profile`">Profile</router-link>
         </div>
         <div class="text-sm">
-          <span v-if="isAuthenticated" class="block mt-4 lg:inline-block lg:mt-0 text-gray-200 mr-4">Welcome, {{
-            username }}!</span>
+          <span v-if="isAuthenticated" class="block mt-4 lg:inline-block lg:mt-0 text-gray-200 mr-4">
+            Welcome, {{ username }}!
+          </span>
           <button v-if="isAuthenticated"
             class="block mt-4 lg:inline-block lg:mt-0 bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
             @click="logout">
