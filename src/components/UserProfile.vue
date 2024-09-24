@@ -1,5 +1,5 @@
 <template>
-  <div v-if="userProfile" class="text-center p-6 rounded-lg">
+  <div v-if="userProfile" class="text-center p-6 rounded-lg mt-16">
     <!-- Profile Picture Section -->
     <div class="relative inline-block">
       <img
@@ -46,7 +46,7 @@
     <div class="mt-6 flex flex-col items-center">
       <samp>{{ userProfile.user.name }}</samp>
       <!-- Display Bio Content -->
-      <div class="mt-4 p-4 bg-gray-50 border border-gray-300 rounded-lg shadow-md w-5/12">
+      <div class="mt-4 p-4 bg-gray-50 border border-gray-300 rounded-lg shadow-md ">
         <h3 class="text-xl font-semibold text-gray-800">Bio</h3>
         <div class="mt-2 text-gray-700 break-all">
           {{ updatedBio || "No bio available." }}

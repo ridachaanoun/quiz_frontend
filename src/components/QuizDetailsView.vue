@@ -26,7 +26,7 @@
 
       <div class="mt-4">
         <span class="block text-lg font-medium text-gray-600">Description</span>
-        <p class="text-lg">{{ quiz.description }}</p>
+        <p class="text-lg break-all">{{ quiz.description }}</p>
       </div>
       <button @click="startQuiz" class="bg-green-500 text-white py-2 px-4 rounded hover:bg-green-600 mt-4">Start Quiz</button>
     </div>

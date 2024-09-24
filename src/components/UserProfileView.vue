@@ -1,28 +1,28 @@
 <template>
-  <div class="container flex">
+  <div class="flex flex-col md:flex-row mt-16">
     <!-- Fixed Sidebar for User Information -->
-    <div class="w-1/4 bg-gray-800 text-white p-6 overflow-y-auto">
+    <aside class="w-full md:w-64 bg-gray-800 text-white p-6 overflow-y-auto md:fixed md:h-screen">
       <div v-if="profile" class="flex flex-col items-center">
         <!-- Profile Picture -->
-        <img :src="`http://127.0.0.1:8000${profile.profile_picture_url}`" alt="Profile Picture" class="w-32 h-32 rounded-full mb-4" />
+        <img :src="`http://127.0.0.1:8000${profile.profile_picture_url}`" alt="Profile Picture" class="w-32 h-32 rounded-full mb-4 border-4 border-gray-600" />
 
         <!-- User Info -->
-        <h2 class="text-2xl font-bold mb-2">{{ profile.user.name }}</h2>
-        <p class="text-lg text-gray-400">{{ profile.bio }}</p>
+        <h2 class="text-2xl font-bold mb-2 text-center">{{ profile.user.name }}</h2>
+        <p class="text-lg text-gray-400 text-center break-all mb-4">{{ profile.bio }}</p>
 
         <!-- User Join Date -->
-        <div class="mt-4">
+        <div class="mt-4 text-center">
           <span class="block text-md font-medium text-gray-500">Joined:</span>
           <p class="text-lg">{{ joinDate }}</p>
         </div>
 
         <!-- Follow/Unfollow Button -->
-        <button @click="toggleFollow" class="mt-4 bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600">
+        <button @click="toggleFollow" class="mt-4 w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-600 transition duration-300">
           {{ isFollowing ? 'Unfollow' : 'Follow' }}
         </button>
 
         <!-- Show Followers Button -->
-        <button @click="showFollowers" class="mt-4 bg-green-500 text-white py-2 px-4 rounded hover:bg-green-600">
+        <button @click="showFollowers" class="mt-2 w-full bg-green-500 text-white py-2 rounded hover:bg-green-600 transition duration-300">
           Show Followers
         </button>
 
@@ -40,7 +40,7 @@
                 </div>
               </li>
             </ul>
-            <button @click="showFollowersModal = false" class="mt-4 bg-red-500 text-white py-2 px-4 rounded hover:bg-red-600">
+            <button @click="showFollowersModal = false" class="mt-4 w-full bg-red-500 text-white py-2 rounded hover:bg-red-600 transition duration-300">
               Close
             </button>
           </div>
@@ -51,39 +51,39 @@
         <i class="fas fa-spinner fa-spin text-4xl text-blue-600"></i>
         <p class="mt-4 text-lg">Loading profile...</p>
       </div>
-    </div>
+    </aside>
 
     <!-- Main Content for Quizzes -->
-    <div class="w-3/4 ml-1/4 p-6">
+    <main class="flex-1 p-6 md:ml-64">
       <!-- Display Quizzes with Pagination -->
-      <div v-if="paginatedQuizzes.length" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div v-if="paginatedQuizzes.length" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
         <div v-for="quiz in paginatedQuizzes" :key="quiz.id" :style="{ backgroundImage: `url('http://127.0.0.1:8000/storage/${quiz.image}')` }" 
-             class="relative bg-cover bg-center h-64 rounded-md overflow-hidden cursor-pointer" 
+             class="relative bg-cover bg-center h-64 rounded-md overflow-hidden cursor-pointer transition-transform transform hover:scale-105"
              @click="goToQuizDetails(quiz.id)">
-          <div class="p-4 absolute inset-0 bg-black bg-opacity-50 flex items-center justify-between">
-            <div class="text-white">
+          <div class="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center text-white p-4">
+            <div>
               <h2 class="text-lg font-semibold">{{ quiz.title }}</h2>
-              <p>{{ quiz.description }}</p>
+              <p class="text-sm">{{ quiz.description }}</p>
             </div>
           </div>
         </div>
       </div>
 
-      <div v-else>No quizzes found</div>
+      <div v-else class="text-center mt-6 text-gray-500">No quizzes found</div>
 
       <!-- Pagination Controls -->
       <div v-if="!selectedQuiz" class="flex justify-center mt-6">
-        <button @click="prevPage" :disabled="currentPage === 1" class="px-4 py-2 mx-1 bg-gray-300 rounded-md hover:bg-gray-400">
+        <button @click="prevPage" :disabled="currentPage === 1" class="px-4 py-2 mx-1 bg-gray-300 rounded-md hover:bg-gray-400 transition duration-300">
           <i class="fas fa-chevron-left"></i> Previous
         </button>
         <button v-for="page in totalPages" :key="page" @click="changePage(page)" :class="['px-4 py-2 mx-1 rounded-md', { 'bg-indigo-600 text-white': page === currentPage, 'bg-gray-300 hover:bg-gray-400': page !== currentPage }]">
           {{ page }}
         </button>
-        <button @click="nextPage" :disabled="currentPage === totalPages" class="px-4 py-2 mx-1 bg-gray-300 rounded-md hover:bg-gray-400">
+        <button @click="nextPage" :disabled="currentPage === totalPages" class="px-4 py-2 mx-1 bg-gray-300 rounded-md hover:bg-gray-400 transition duration-300">
           Next <i class="fas fa-chevron-right"></i>
         </button>
       </div>
-    </div>
+    </main>
   </div>
 </template>
 

@@ -1,6 +1,6 @@
 <template>
-  <div class="container mx-auto p-4">
-    <h2 class="text-2xl font-bold text-gray-800 mb-6 text-center">Manage Users</h2>
+  <div class=" mx-auto p-6">
+    <h2 class="text-3xl font-bold text-gray-800 mb-8 text-center">Manage Users</h2>
     <ul class="grid gap-6 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
       <li
         v-for="user in userList"
@@ -12,11 +12,11 @@
             v-if="user.profile_picture_url"
             :src="`http://localhost:8000${user.profile_picture_url}`"
             alt="Profile Picture"
-            class="w-16 h-16 rounded-full object-cover"
+            class="w-16 h-16 rounded-full object-cover border-2 border-indigo-500"
           />
           <div>
             <p class="text-lg font-semibold text-gray-700">{{ user.user.name }}</p>
-            <p class="text-sm text-gray-500">{{ user.user.email }}</p>
+            <p class="text-sm text-gray-500 break-all ">{{ user.user.email }}</p>
           </div>
         </div>
         <div>
@@ -26,7 +26,7 @@
               <select
                 v-model="user.role_id"
                 @change="updateRole(user.id, user.role_id)"
-                class="block px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                class="block w-full px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-300"
               >
                 <option :value="user.role_id">{{ user.role_name }}</option>
                 <option
@@ -41,7 +41,7 @@
             </div>
           </template>
           <template v-else>
-            <span class="text-gray-700">{{ user.role_name }}</span>
+            <span class="text-gray-700 font-medium">{{ user.role_name }}</span>
           </template>
         </div>
       </li>
@@ -52,6 +52,7 @@
 <script>
 import axios from '@/plugins/axios';
 import { mapGetters, mapActions } from 'vuex';
+import Swal from 'sweetalert2';
 
 export default {
   name: 'ManageUsers',
@@ -60,18 +61,18 @@ export default {
       roles: [
         { id: 1, name: 'Admin' },
         { id: 2, name: 'User' },
-        { id: 3, name: 'Super Admin' }
-      ]
+        { id: 3, name: 'Super Admin' },
+      ],
     };
   },
   computed: {
     ...mapGetters('users', ['allUsers']),
     userList() {
-      return this.$store.getters['users/allUsers'];
+      return this.allUsers;
     },
     isSuperAdmin() {
       return this.$store.getters['auth/isSuperAdmin'];
-    }
+    },
   },
   created() {
     this.fetchUsers();
@@ -81,17 +82,42 @@ export default {
     async updateRole(userId, roleId) {
       try {
         await axios.put(`http://localhost:8000/api/users/${userId}/role`, { role_id: roleId });
-        console.log('User role updated successfully.');
-        // Optionally refresh the user list
+        
+        // SweetAlert2 success notification
+        Swal.fire({
+          title: 'Success!',
+          text: 'User role updated successfully.',
+          icon: 'success',
+          confirmButtonText: 'OK'
+        });
+
+        // Refresh the user list
         this.fetchUsers();
       } catch (error) {
         console.error('Error updating role:', error);
+        
+        // SweetAlert2 error notification
+        Swal.fire({
+          title: 'Error!',
+          text: 'Failed to update user role. Please try again.',
+          icon: 'error',
+          confirmButtonText: 'OK'
+        });
       }
-    }
-  }
+    },
+  },
 };
 </script>
 
 <style scoped>
-/* Add custom styles here if needed */
+/* Optional custom styles */
+.container {
+  max-width: 1200px; /* Ensure container does not exceed a certain width */
+}
+
+h2 {
+  font-family: 'Arial', sans-serif; /* Change font style if desired */
+}
+
+/* You can add additional custom styles here */
 </style>

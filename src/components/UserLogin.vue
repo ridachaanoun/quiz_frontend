@@ -6,7 +6,7 @@
       <form @submit.prevent="handleLogin" class="space-y-4">
         <div class="flex flex-col">
           <label for="email" class="text-base font-medium">Email</label>
-          <input 
+          <input
             v-model="email"
             type="email"
             id="email"
@@ -18,7 +18,7 @@
         </div>
         <div class="flex flex-col">
           <label for="password" class="text-base font-medium">Password</label>
-          <input 
+          <input
             v-model="password"
             type="password"
             id="password"
@@ -28,12 +28,19 @@
           />
           <span v-if="errors.password" class="text-red-600 text-sm">{{ errors.password }}</span>
         </div>
+        <div v-if="errors.general" class="text-red-600 text-center text-sm">{{ errors.general }}</div>
+
+        <!-- Loading Spinner or Message -->
+
+
         <div class="mt-6">
           <button
             type="submit"
-            class="w-full py-2 bg-indigo-600 text-white rounded-lg shadow-sm hover:bg-indigo-700 transition ease-in-out duration-150"
+            class="w-full py-2 spinner-border  bg-indigo-600 text-white rounded-lg shadow-sm hover:bg-indigo-700 transition ease-in-out duration-150"
+            :disabled="loading"  
           >
-            Login
+            <span v-if="loading" class="">checking</span>
+            <span v-else>Login</span>
           </button>
         </div>
         <div class="mt-4 text-center">
@@ -52,6 +59,7 @@ export default {
     return {
       email: '',
       password: '',
+      loading: false, // Add loading state
       errors: {} // Store validation errors
     };
   },
@@ -60,22 +68,16 @@ export default {
     async handleLogin() {
       // Clear previous error messages
       this.errors = {};
+      this.loading = true; // Start loading
 
       try {
         await this.login({ email: this.email, password: this.password });
         this.$router.push('/'); // Redirect to home page after successful login
       } catch (error) {
-        if (error.message) {
-          if (error.message.includes('Invalid login credentials "email"')) {
-            this.errors.email = 'Email does not exist.';
-          } else if (error.message.includes('Invalid login credentials "pass"')) {
-            this.errors.password = 'Incorrect password.';
-          } else {
-            alert('Login failed: ' + error.message);
-          }
-        } else {
-          alert('Login failed: An unexpected error occurred.');
-        }
+        // Handle validation or other errors
+        this.errors.general = 'email or password is wrong. Please try again.';
+      } finally {
+        this.loading = false; // Stop loading
       }
     }
   }

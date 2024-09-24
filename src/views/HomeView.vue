@@ -1,8 +1,12 @@
 <template>
-  <div class="home">
-    <!-- <p>{{ username }}</p> -->
-    <div v-if="!selectedQuiz">
-      <h1 class="text-2xl font-bold mb-4 text-center">All Quizzes</h1>
+  <div class="home bg-gray-200">
+    <div v-if="loading" class="flex justify-center items-center h-screen">
+      <div class="spinner-border animate-spin inline-block w-8 h-8 border-4 rounded-full" role="status">
+      </div>
+    </div>
+
+    <div v-if="!loading && !selectedQuiz">
+      <h1 class="text-2xl font-bold mb-4 text-center mt-16  bg-gray-100">All Quizzes</h1>
       
       <!-- Filter and Search Bar -->
       <div class="flex justify-between items-center mb-4">
@@ -69,6 +73,7 @@ export default {
       quizzesPerPage: 16, // Quizzes per page
       searchQuery: '', // Search query data property
       selectedCategory: '', // Track the selected category
+      loading: true, // Track the loading state
     };
   },
   computed: {
@@ -108,8 +113,11 @@ export default {
   methods: {
     ...mapActions('quizzes', ['fetchQuizzes']),
     fetchCategories() {
-      // Assuming you have a Vuex action to fetch categories
-      this.$store.dispatch('categories/fetchCategories');
+      this.loading = true;
+      this.$store.dispatch('categories/fetchCategories')
+        .finally(() => {
+          this.loading = false;
+        });
     },
     goToQuizDetails(id) {
       this.$router.push({ name: 'QuizDetails', params: { id } });
@@ -123,10 +131,21 @@ export default {
     changePage(page) {
       this.currentPage = page;
     },
+    fetchQuizzes() {
+      this.loading = true;
+      this.$store.dispatch('quizzes/fetchQuizzes')
+        .finally(() => {
+          this.loading = false;
+        });
+    },
   },
 };
 </script>
 
 <style scoped>
-/* Add any additional styles here */
+/* Spinner Styles */
+.spinner-border {
+  border-color: transparent;
+  border-top-color: #3498db;
+}
 </style>

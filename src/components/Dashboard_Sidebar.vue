@@ -1,7 +1,7 @@
 <template>
   <div class="flex flex-col md:flex-row w-full h-screen">
     <!-- Mobile Navbar (Hamburger Menu) -->
-    <div class="bg-gray-800 text-white md:hidden flex items-center justify-between p-4">
+    <div class="bg-gray-800 text-white md:hidden flex items-center justify-between p-4 mt-16">
       <h2 class="text-lg font-bold">Dashboard</h2>
       <button @click="toggleSidebar" class="focus:outline-none">
         <svg
@@ -24,7 +24,7 @@
     <!-- Sidebar -->
     <div
       :class="[
-        'bg-gray-800 text-white md:w-64 w-60 h-full md:block',
+        'bg-gray-800 text-white md:w-64 w-60 h-full md:block fixed',
         isSidebarOpen ? 'block' : 'hidden'
       ]"
     >
@@ -58,8 +58,8 @@
     </div>
 
     <!-- Main Content -->
-    <div class="p-6 flex-1">
-      <div v-if="currentContent === 'categories'">
+    <div class="p-6 flex-1  md:ml-64 mt-16">
+      <div  v-if="currentContent === 'categories'">
         <ManageCategories />
       </div>
       <div v-if="currentContent === 'quizzes'">

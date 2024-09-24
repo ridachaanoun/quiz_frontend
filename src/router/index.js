@@ -11,6 +11,7 @@ import QuizQuestionView from '@/components/QuizQuestionView.vue';
 import QuizResultView from '@/components/QuizResultView.vue';
 import UserProfileView from '@/components/UserProfileView.vue';
 import UserProfile from '../components/UserProfile.vue'; // Import the new component
+import UserDashboard from '@/components/UserDashboard.vue';
 
 // Define Routes
 const routes = [
@@ -18,6 +19,7 @@ const routes = [
   { path: '/login', component: UserLogin, meta: { requiresAuth: false } },
   { path: '/register', component: UserRegister, meta: { requiresAuth: false } },
   { path: '/dashboard', component: Dashboard, meta: { requiresAuth: true, requiresAdmin: true } },
+  { path: '/user-dashboard', component: UserDashboard, meta: { requiresAuth: true } },
   {
     path: '/quiz/:id',
     name: 'QuizDetails',

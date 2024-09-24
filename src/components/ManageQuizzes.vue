@@ -1,6 +1,6 @@
 <template>
-  <div>
-    <h1 class="text-2xl font-bold mb-4 text-center" v-if="!selectedQuiz">Manage Quizzes</h1>
+  <div >
+    <h1 class="text-2xl font-bold mb-4 text-center " v-if="!selectedQuiz">Manage Quizzes</h1>
     
     <!-- Filter and Search Bar -->
     <div v-if="!selectedQuiz" class="flex justify-between items-center mb-4">
@@ -97,7 +97,7 @@
 
     <!-- Display Quizzes with Pagination -->
     <div v-if="paginatedQuizzes.length && !selectedQuiz" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 ">
-      <div v-for="quiz in paginatedQuizzes" :key="quiz.id" :style="{ backgroundImage: `url('http://127.0.0.1:8000/storage/${quiz.image}')` }" class="relative bg-cover bg-center h-64 rounded-md overflow-hidden">
+      <div v-for="quiz in paginatedQuizzes" :key="quiz.id" :style="{  backgroundImage: `url(${quiz.image ? `http://127.0.0.1:8000/storage/${quiz.image}` : require('../assets/download.jpeg')})`, }" class="relative bg-cover bg-center h-64 rounded-md overflow-hidden">
         <div class="p-4 absolute inset-0 bg-black bg-opacity-50 flex items-center justify-between">
           <div class="text-white" @click="selectQuiz(quiz.id)">
             <h2 class="text-lg font-semibold cursor-pointer">{{ quiz.title }}</h2>
@@ -137,6 +137,7 @@ import { mapGetters, mapActions } from 'vuex';
 import Modal from '@/components/CreateQuizModal.vue'; // Adjust the path as necessary
 import QuizDetails from '@/components/QuizDetails.vue'; // Import the QuizDetails component
 import axios from '@/plugins/axios';
+import Swal from 'sweetalert2';
 
 export default {
   components: {
@@ -189,81 +190,120 @@ export default {
   },
   methods: {
     ...mapActions('quizzes', ['fetchQuizzes', 'fetchQuizById']),
-    ...mapActions('categories', ['fetchCategories']),
-    handleFileUpload(event) {
-      this.newQuiz.image = event.target.files[0];
-    },
-    handleUpdateFileUpload(event) {
-      if (event.target.files.length) {
-        this.currentQuiz.image = event.target.files[0];
+  ...mapActions('categories', ['fetchCategories']),
+  
+  handleFileUpload(event) {
+    this.newQuiz.image = event.target.files[0];
+  },
+  handleUpdateFileUpload(event) {
+    if (event.target.files.length) {
+      this.currentQuiz.image = event.target.files[0];
+    }
+  },
+  
+  async createQuiz() {
+    try {
+      const formData = new FormData();
+      formData.append('title', this.newQuiz.title);
+      formData.append('category_id', this.newQuiz.category_id);
+      formData.append('description', this.newQuiz.description);
+      if (this.newQuiz.image) {
+        formData.append('image', this.newQuiz.image);
       }
-    },
-    async createQuiz() {
+
+      await axios.post('http://localhost:8000/api/quizzes', formData, {
+      });
+
+      this.showCreateModal = false;
+      await this.fetchQuizzes();
+
+      Swal.fire({
+        icon: 'success',
+        title: 'Quiz Created!',
+        text: 'The quiz has been successfully created.',
+      });
+
+      this.newQuiz = {
+        title: '',
+        category_id: '',
+        description: '',
+        image: null,
+      };
+    } catch (error) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Failed to create quiz',
+        text: error.response ? error.response.data.message : error.message,
+      });
+    }
+  },
+  
+  async updateQuiz() {
+    try {
+      const formData = new FormData();
+      formData.append('title', this.currentQuiz.title);
+      formData.append('category_id', this.currentQuiz.category_id);
+      formData.append('description', this.currentQuiz.description);
+      if (this.currentQuiz.image && this.currentQuiz.image instanceof File) {
+        formData.append('image', this.currentQuiz.image);
+      }
+
+      await axios.post(`http://localhost:8000/api/quizzes/${this.currentQuiz.id}?_method=PUT`, formData, {
+      });
+
+      this.showUpdateModal = false;
+      this.currentQuiz = null;
+      await this.fetchQuizzes();
+
+      Swal.fire({
+        icon: 'success',
+        title: 'Quiz Updated!',
+        text: 'The quiz has been successfully updated.',
+      });
+    } catch (error) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Failed to update quiz',
+        text: error.response ? error.response.data.message : error.message,
+      });
+    }
+  },
+  
+  async deleteQuiz(id) {
+    const result = await Swal.fire({
+      title: 'Are you sure?',
+      text: 'Do you want to delete this quiz?',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#3085d6',
+      confirmButtonText: 'Yes, delete it!',
+    });
+
+    if (result.isConfirmed) {
       try {
-        const formData = new FormData();
-        formData.append('title', this.newQuiz.title);
-        formData.append('category_id', this.newQuiz.category_id);
-        formData.append('description', this.newQuiz.description);
-        if (this.newQuiz.image) {
-          formData.append('image', this.newQuiz.image);
-        }
-
-         await axios.post('http://localhost:8000/api/quizzes', formData, {
-          headers: {
-            'Content-Type': 'multipart/form-data'
-          }
-        });
-
-        this.showCreateModal = false;
+        await axios.delete(`http://localhost:8000/api/quizzes/${id}`);
         await this.fetchQuizzes();
 
-        this.newQuiz = {
-          title: '',
-          category_id: '',
-          description: '',
-          image: null,
-        };
-      } catch (error) {
-        console.error('Failed to create quiz:', error.response ? error.response.data : error.message);
-      }
-    },
-    async updateQuiz() {
-      try {
-        const formData = new FormData();
-        formData.append('title', this.currentQuiz.title);
-        formData.append('category_id', this.currentQuiz.category_id);
-        formData.append('description', this.currentQuiz.description);
-        if (this.currentQuiz.image && this.currentQuiz.image instanceof File) {
-          formData.append('image', this.currentQuiz.image);
-        }
-
-        await axios.post(`http://localhost:8000/api/quizzes/${this.currentQuiz.id}?_method=PUT`, formData, {
-          headers: {
-            'Content-Type': 'multipart/form-data'
-          }
+        Swal.fire({
+          icon: 'success',
+          title: 'Deleted!',
+          text: 'The quiz has been deleted.',
         });
-
-        this.showUpdateModal = false;
-        this.currentQuiz = null;
-        await this.fetchQuizzes();
       } catch (error) {
-        console.error('Failed to update quiz:', error.response ? error.response.data : error.message);
+        Swal.fire({
+          icon: 'error',
+          title: 'Failed to delete quiz',
+          text: error.response ? error.response.data.message : error.message,
+        });
       }
-    },
-    async deleteQuiz(id) {
-      if (confirm('Do you want to delete this quiz?')) {
-        try {
-          await axios.delete(`http://localhost:8000/api/quizzes/${id}`);
-          await this.fetchQuizzes();
-        } catch (error) {
-          console.error('Failed to delete quiz:', error.response ? error.response.data : error.message);
-        }
-      }
-    },
-    editQuiz(quiz) {
-      this.currentQuiz = { ...quiz };
-      this.showUpdateModal = true;
-    },
+    }
+  },
+
+  editQuiz(quiz) {
+    this.currentQuiz = { ...quiz };
+    this.showUpdateModal = true;
+  },
     selectQuiz(id) {
       this.selectedQuiz = id;
     },

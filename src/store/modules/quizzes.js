@@ -4,6 +4,7 @@ export default {
   namespaced: true,
   state: {
     quizzes: [],
+    userquizzes: [],
     currentQuiz: null,
     quizQuestions: [],
     userAnswers: {},
@@ -11,6 +12,7 @@ export default {
   },
   getters: {
     quizzes: (state) => state.quizzes,
+    userquizzes: (state) => state.userquizzes,
     currentQuiz: (state) => state.currentQuiz,
     quizQuestions: (state) => state.quizQuestions,
     userAnswers: (state) => state.userAnswers,
@@ -46,6 +48,15 @@ export default {
         console.error('Failed to fetch profile:', error);
       }
     },
+    async fetchUserQuizzes({ commit },user_id) {
+      try {
+        const response = await axios.get(`http://127.0.0.1:8000/api/user-quizzes/${user_id}`);
+        commit('setuserquizzes', response.data.quizzes);
+        console.log(response.data.quizzes)
+      } catch (error) {
+        console.error('Error fetching quizzes:', error);
+      }
+    },
     saveAnswer({ commit }, { questionId, answer }) {
       commit('setUserAnswer', { questionId, answer });
     },
@@ -53,6 +64,9 @@ export default {
   mutations: {
     setQuizzes(state, quizzes) {
       state.quizzes = quizzes;
+    },
+    setuserQuizzes(state, userquizzes) {
+      state.userquizzes = userquizzes;
     },
     setCurrentQuiz(state, quiz) {
       state.currentQuiz = quiz;
