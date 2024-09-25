@@ -1,25 +1,39 @@
 <template>
-  <div class="flex flex-col items-center justify-center min-h-screen p-4">
-    <div v-if="isSubmitting" class="fixed inset-0 bg-white bg-opacity-75 flex items-center justify-center z-50">
-      <i class="fas fa-spinner fa-spin text-4xl text-blue-600"></i>
+  <div class="flex flex-col items-center justify-center min-h-screen p-4 bg-gray-100">
+    <!-- Loading Spinner -->
+    <div v-if="isSubmitting" class="fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center z-50">
+      <i class="fas fa-circle-notch fa-spin text-5xl text-blue-500"></i>
     </div>
-    <div v-else class="w-full max-w-lg">
-      <h2 class="text-2xl font-bold mb-4 text-center">{{ question.question }}</h2>
-      <div v-for="(option, key) in question.options" :key="key" class="mb-2 flex items-center">
-        <input
-          type="radio"
-          :name="`question-${question.id}`"
-          :value="key"
-          v-model="selectedAnswer"
-          class="mr-2"
-        />
-        <label class="text-lg">{{ option }}</label>
+    
+    <!-- Quiz Question Form -->
+    <div v-else class="w-full max-w-lg bg-white p-8 rounded-lg shadow-md">
+      <h2 class="text-3xl font-bold mb-6 text-center text-gray-800">
+        <i class="fas fa-question-circle text-blue-500 mr-2"></i> 
+        {{ question.question }}
+      </h2>
+
+      <!-- Quiz Options -->
+      <div v-for="(option, key) in question.options" :key="key" class="mb-4">
+        <label class="flex items-center cursor-pointer">
+          <input
+            type="radio"
+            :name="`question-${question.id}`"
+            :value="key"
+            v-model="selectedAnswer"
+            class="form-radio h-5 w-5 text-blue-600 transition duration-150 ease-in-out mr-3"
+          />
+          <span class="text-lg text-gray-700">{{ option }}</span>
+        </label>
       </div>
+
+      <!-- Next or Submit Button -->
       <button
         @click="nextQuestion"
-        class="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 transition"
+        class="w-full bg-blue-600 text-white py-3 px-6 rounded-md font-semibold hover:bg-blue-700 transition duration-200 ease-in-out flex items-center justify-center"
       >
-        {{ isLastQuestion ? 'Submit' : 'Next' }}
+        <i v-if="!isLastQuestion" class="fas fa-arrow-right mr-2"></i>
+        <i v-else class="fas fa-check-circle mr-2"></i>
+        {{ isLastQuestion ? 'Submit Quiz' : 'Next Question' }}
       </button>
     </div>
   </div>
@@ -99,5 +113,5 @@ export default {
 </script>
 
 <style scoped>
-/* Tailwind CSS classes are used directly in the template for styling */
+/* Additional styles are applied directly via Tailwind CSS in the template */
 </style>

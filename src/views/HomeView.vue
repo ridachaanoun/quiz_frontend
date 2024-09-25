@@ -1,12 +1,12 @@
 <template>
-  <div class="home bg-gray-200">
+  <div class="home bg-gray-200" >
     <div v-if="loading" class="flex justify-center items-center h-screen">
       <div class="spinner-border animate-spin inline-block w-8 h-8 border-4 rounded-full" role="status">
       </div>
     </div>
 
     <div v-if="!loading && !selectedQuiz">
-      <h1 class="text-2xl font-bold mb-4 text-center mt-16  bg-gray-100">All Quizzes</h1>
+      <h1 class="text-2xl font-bold mb-4 text-center mt-16">All Quizzes</h1>
       
       <!-- Filter and Search Bar -->
       <div class="flex justify-between items-center mb-4">
@@ -35,7 +35,7 @@
       </div>
 
       <div v-if="paginatedQuizzes.length" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div v-for="quiz in paginatedQuizzes" :key="quiz.id" :style="{ backgroundImage: `url('http://127.0.0.1:8000/storage/${quiz.image}')` }" class="relative bg-cover bg-center h-64 rounded-md overflow-hidden">
+        <div v-for="quiz in paginatedQuizzes" :key="quiz.id" :style="{  backgroundImage: `url(${quiz.image ? `http://127.0.0.1:8000/storage/${quiz.image}` : require('../assets/download.jpeg')})`, }" class="relative bg-cover bg-center h-64 rounded-md overflow-hidden">
           <div class="p-4 absolute inset-0 bg-black bg-opacity-50 flex items-center justify-between">
             <div class="text-white" @click="goToQuizDetails(quiz.id)">
               <h2 class="text-lg font-semibold cursor-pointer">{{ quiz.title }}</h2>

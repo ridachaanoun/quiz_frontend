@@ -1,8 +1,22 @@
 <template>
-  <div class="quiz-result">
-    <h1 class="text-3xl font-bold">Quiz Completed!</h1>
-    <p class="text-xl mt-4">Your score: {{ formattedScore }}%</p>
-    <button @click="goBackToQuizzes" class="btn btn-primary mt-4">Back to Quizzes</button>
+  <div class="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-6">
+    <!-- Quiz Completion Message -->
+    <div class="w-full max-w-md bg-white p-8 rounded-lg shadow-lg text-center">
+      <h1 class="text-4xl font-bold text-blue-600 mb-6">
+        <i class="fas fa-trophy text-yellow-500"></i> Quiz Completed!
+      </h1>
+      <p class="text-2xl font-semibold text-gray-800 mb-4">
+        Your score: <span class="text-blue-500">{{ formattedScore }}%</span>
+      </p>
+
+      <!-- Back to Quizzes Button -->
+      <button
+        @click="goBackToQuizzes"
+        class="bg-blue-600 text-white py-3 px-6 rounded-md font-semibold hover:bg-blue-700 transition duration-200 ease-in-out mt-6 flex items-center justify-center"
+      >
+        <i class="fas fa-arrow-left mr-2"></i> Back to Quizzes
+      </button>
+    </div>
   </div>
 </template>
 
@@ -35,5 +49,5 @@ export default {
 </script>
 
 <style scoped>
-/* Add styles for QuizResultView */
+/* Additional styles applied directly via Tailwind in the template */
 </style>

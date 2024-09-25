@@ -1,10 +1,11 @@
 import axios from '../../plugins/axios';
+import Cookies from 'js-cookie';
 
 export default {
   namespaced: true,
   state: {
     userData: null,
-    token: sessionStorage.getItem('token') || null, // Store token in session storage
+    token: Cookies.get('token') || null, // Get token from cookies
   },
   mutations: {
     setUserData(state, userData) {
@@ -12,13 +13,13 @@ export default {
     },
     setToken(state, token) {
       state.token = token;
-      sessionStorage.setItem('token', token);  // Persist token in session storage
+      Cookies.set('token', token, { expires: 30 }); // Set token in cookies with 30-day expiration
       axios.defaults.headers.common['Authorization'] = `Bearer ${token}`; // Set token for Axios requests
     },
     clearAuthData(state) {
       state.userData = null;
       state.token = null;
-      sessionStorage.removeItem('token'); // Use session storage
+      Cookies.remove('token'); // Remove token from cookies
       delete axios.defaults.headers.common['Authorization'];
     },
   },
@@ -46,7 +47,6 @@ export default {
     async fetchUserData({ commit }) {
       try {
         const response = await axios.get('user');
-        // Update to handle new API response structure
         commit('setUserData', response.data.profile); // Use response.data.profile
         return response.data.profile;
       } catch (error) {
