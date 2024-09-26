@@ -194,14 +194,20 @@
       </div>
     </div>
   </div>
+  <Attempts />
+
 </template>
 
 <script>
 import axios from '@/plugins/axios';
 import { mapGetters, mapActions } from 'vuex';
 import Swal from 'sweetalert2';
+import Attempts from '@/components/AttemptsOfUser.vue'; // Import SweetAlert2
 
 export default {
+   components: {
+    Attempts, 
+  },
   data() {
     return {
       showUpdateNameModal: false,

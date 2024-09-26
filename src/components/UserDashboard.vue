@@ -1,5 +1,5 @@
 <template>
-  <div class="mx-auto p-4">
+  <div class="mx-auto p-4 mt-16">
     <h1 class="text-2xl font-bold mb-4">My Quizzes</h1>
 
     <!-- Create Quiz Button -->
@@ -11,13 +11,19 @@
     <div v-if="loading" class="text-center">
       <i class="fas fa-spinner fa-spin"></i> Loading...
     </div>
+
+    <!-- Quiz Details Component -->
+    <QuizDetailView v-if="selectedQuiz" :quiz="selectedQuiz" @go-back="resetView" />
+
+    <!-- Quiz List View -->
     <div v-else>
       <div v-if="quizzes.length === 0" class="text-center">No quizzes found.</div>
       <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
         <div 
           v-for="quiz in quizzes" 
           :key="quiz.id" 
-          class="border rounded-lg p-4 shadow h-56" 
+          class="border rounded-lg p-4 shadow h-56 cursor-pointer" 
+          @click="selectQuiz(quiz)"
           :style="{ 
             backgroundImage: `url(${quiz.image ? `http://127.0.0.1:8000/storage/${quiz.image}` : require('../assets/download.jpeg')})`, 
             backgroundSize: 'cover', 
@@ -28,14 +34,11 @@
             <h2 class="text-lg font-semibold text-white">{{ quiz.title }}</h2>
             <p class="text-sm text-gray-200 break-all h-10 overflow-hidden">{{ quiz.description }}</p>
             <p class="text-xs text-gray-300">Category: {{ quiz.category.name }}</p>
-
-            <!-- Update Quiz Button -->
-            <button @click="openUpdateModal(quiz)" class="mt-2 bg-yellow-500 text-white rounded px-2 py-1 hover:bg-yellow-600 transition">
+            <!-- Update and Delete Buttons -->
+            <button @click.stop="openUpdateModal(quiz)" class="mt-2 bg-yellow-500 text-white rounded px-2 py-1 hover:bg-yellow-600 transition">
               <i class="fas fa-edit"></i> Edit
             </button>
-
-            <!-- Delete Quiz Button -->
-            <button @click="deleteQuiz(quiz.id)" class="mt-2 bg-red-500 text-white rounded px-2 py-1 hover:bg-red-600 transition">
+            <button @click.stop="deleteQuiz(quiz.id)" class="mt-2 bg-red-500 text-white rounded px-2 py-1 hover:bg-red-600 transition">
               <i class="fas fa-trash"></i> Delete
             </button>
           </div>
@@ -48,6 +51,7 @@
       <div class="bg-white p-6 rounded-lg shadow-lg w-full max-w-lg">
         <h2 class="text-lg font-semibold mb-4">Create New Quiz</h2>
         <form @submit.prevent="createQuiz">
+          <!-- Form Inputs for Quiz Creation -->
           <div class="mb-4">
             <label class="block mb-1 font-medium">Title:</label>
             <input v-model="newQuiz.title" type="text" class="border rounded w-full px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" required />
@@ -80,6 +84,7 @@
       <div class="bg-white p-6 rounded-lg shadow-lg w-full max-w-lg">
         <h2 class="text-lg font-semibold mb-4">Update Quiz</h2>
         <form @submit.prevent="updateQuiz">
+          <!-- Form Inputs for Quiz Update -->
           <div class="mb-4">
             <label class="block mb-1 font-medium">Title:</label>
             <input v-model="currentQuiz.title" type="text" class="border rounded w-full px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" required />
@@ -113,7 +118,7 @@
 import axios from '@/plugins/axios';
 import { mapGetters } from 'vuex';
 import Swal from 'sweetalert2'; // Import SweetAlert2
-
+// import QuizDetailView from './QuizDetails2.vue'; // Update the import statement
 export default {
   data() {
     return {
@@ -165,7 +170,7 @@ export default {
     },
     closeUpdateModal() {
       this.showUpdateModal = false;
-      this.currentQuiz = null;
+      this.currentQuiz = null; // Reset current quiz
     },
     resetNewQuiz() {
       this.newQuiz = {
@@ -175,9 +180,11 @@ export default {
         image: null,
       };
     },
-    onFileChange(event) {
-      const file = event.target.files[0];
-      this.newQuiz.image = file;
+    selectQuiz(quiz) {
+      this.selectedQuiz = quiz;
+    },
+    resetView() {
+      this.selectedQuiz = null;
     },
     async createQuiz() {
       try {
@@ -190,22 +197,12 @@ export default {
         }
 
         await axios.post('quizzes', formData);
-        this.showCreateModal = false;
-        await this.fetchQuizzes();
-        this.resetNewQuiz();
-
-        // Show success alert
-        Swal.fire({
-          icon: 'success',
-          title: 'Quiz Created!',
-          text: 'The quiz has been successfully created.',
-        });
+        Swal.fire('Success!', 'Quiz created successfully.', 'success');
+        this.closeCreateModal();
+        this.fetchQuizzes();
       } catch (error) {
-        Swal.fire({
-          icon: 'error',
-          title: 'Failed to create quiz',
-          text: error.response ? error.response.data.message : error.message,
-        });
+        console.error('Error creating quiz:', error);
+        Swal.fire('Error!', 'Failed to create quiz.', 'error');
       }
     },
     async updateQuiz() {
@@ -214,63 +211,40 @@ export default {
         formData.append('title', this.currentQuiz.title);
         formData.append('category_id', this.currentQuiz.category_id);
         formData.append('description', this.currentQuiz.description);
-        if (this.currentQuiz.image && this.currentQuiz.image instanceof File) {
+        if (this.currentQuiz.image) {
           formData.append('image', this.currentQuiz.image);
         }
 
-        await axios.post(`http://localhost:8000/api/quizzes/${this.currentQuiz.id}`, formData, {
-          headers: {
-            'Content-Type': 'multipart/form-data',
-            'X-HTTP-Method-Override': 'PUT',
-          },
-        });
-
-        this.showUpdateModal = false;
-        this.currentQuiz = null;
-        await this.fetchQuizzes();
-
-        Swal.fire({
-          icon: 'success',
-          title: 'Quiz Updated!',
-          text: 'The quiz has been successfully updated.',
-        });
+        await axios.put(`quizzes/${this.currentQuiz.id}`, formData);
+        Swal.fire('Success!', 'Quiz updated successfully.', 'success');
+        this.closeUpdateModal();
+        this.fetchQuizzes();
       } catch (error) {
-        Swal.fire({
-          icon: 'error',
-          title: 'Failed to update quiz',
-          text: error.response ? error.response.data.message : error.message,
-        });
+        console.error('Error updating quiz:', error);
+        Swal.fire('Error!', 'Failed to update quiz.', 'error');
       }
     },
     async deleteQuiz(quizId) {
-      const confirmation = await Swal.fire({
-        title: 'Are you sure?',
-        text: 'You won’t be able to revert this!',
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#d33',
-        cancelButtonColor: '#3085d6',
-        confirmButtonText: 'Yes, delete it!',
-      });
-
-      if (confirmation.isConfirmed) {
-        try {
-          await axios.delete(`quizzes/${quizId}`);
-          await this.fetchQuizzes();
-
-          Swal.fire('Deleted!', 'Your quiz has been deleted.', 'success');
-        } catch (error) {
-          Swal.fire({
-            icon: 'error',
-            title: 'Failed to delete quiz',
-            text: error.response ? error.response.data.message : error.message,
-          });
-        }
+      try {
+        await axios.delete(`quizzes/${quizId}`);
+        Swal.fire('Deleted!', 'Quiz has been deleted.', 'success');
+        this.fetchQuizzes();
+      } catch (error) {
+        console.error('Error deleting quiz:', error);
+        Swal.fire('Error!', 'Failed to delete quiz.', 'error');
+      }
+    },
+    onFileChange(event) {
+      const file = event.target.files[0];
+      if (file) {
+        this.newQuiz.image = file;
       }
     },
     onFileChangeUpdate(event) {
       const file = event.target.files[0];
-      this.currentQuiz.image = file;
+      if (file) {
+        this.currentQuiz.image = file;
+      }
     },
   },
   mounted() {
@@ -281,5 +255,5 @@ export default {
 </script>
 
 <style scoped>
-/* Add any specific styles you want here */
+/* Add any custom styles here */
 </style>
