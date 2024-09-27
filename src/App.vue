@@ -1,5 +1,5 @@
 <template>
-  <div >
+  <div>
     <nav v-if="isAuthenticated" class="bg-sky-600 p-4 flex w-full z-10 fixed top-0 items-center justify-between flex-wrap">
       <!-- Brand / Home Link -->
       <div class="flex items-center flex-shrink-0 text-white mr-6">
@@ -19,7 +19,7 @@
         </button>
       </div>
 
-      <!-- Links -->
+      <!-- Links and Notifications -->
       <div :class="{
         'w-full block flex-grow lg:flex lg:items-center lg:w-auto': true,
         hidden: !isMenuOpen && isSmallScreen,
@@ -29,11 +29,13 @@
             to="/dashboard">Dashboard</router-link>
           <router-link v-if="isAuthenticated" class="block mt-4 lg:inline-block lg:mt-0 text-gray-200 hover:text-white mr-4"
             :to="`/profile`">Profile</router-link>
-            <!-- User Dashboard link -->
-<router-link v-if="isAuthenticated && !isAdmin" class="block mt-4 lg:inline-block lg:mt-0 text-gray-200 hover:text-white mr-4"
-  to="/user-dashboard">User Dashboard</router-link>
+          <router-link v-if="isAuthenticated && !isAdmin" class="block mt-4 lg:inline-block lg:mt-0 text-gray-200 hover:text-white mr-4"
+            to="/user-dashboard">User Dashboard</router-link>
         </div>
-        <div class="text-sm">
+
+        <!-- Notification Bell Component -->
+        <div class="text-sm flex items-center">
+          <notification-bell v-if="isAuthenticated"></notification-bell>
           <span v-if="isAuthenticated" class="block mt-4 lg:inline-block lg:mt-0 text-gray-200 mr-4">
             Welcome, {{ username }}!
           </span>
@@ -51,9 +53,13 @@
 
 <script>
 import { mapGetters, mapActions } from "vuex";
+import NotificationBell from "@/components/NotificationBell";
 
 export default {
   name: "App",
+  components: {
+    NotificationBell,
+  },
   data() {
     return {
       isMenuOpen: false,
@@ -83,5 +89,5 @@ export default {
 </script>
 
 <style scoped>
-
+/* Add any necessary styles */
 </style>
