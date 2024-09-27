@@ -12,6 +12,7 @@ import QuizResultView from '@/components/QuizResultView.vue';
 import UserProfileView from '@/components/UserProfileView.vue';
 import UserProfile from '../components/UserProfile.vue'; // Import the new component
 import UserDashboard from '@/components/UserDashboard.vue';
+import QuizOverview from '@/components/QuizOverview.vue';
 
 // Define Routes
 const routes = [
@@ -52,6 +53,13 @@ const routes = [
     name: 'UserProfile',
     component: UserProfile,
     meta: { requiresAuth: true } // Ensure authentication is required for this route
+  },
+  {
+    path: '/userquiz/:id',
+    name: 'QuizOverview', 
+    component: QuizOverview, 
+    props: true,
+    meta: { requiresAuth: true }
   },
 ];
 

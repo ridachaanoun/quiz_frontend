@@ -20,7 +20,7 @@
       <div v-if="quizzes.length === 0" class="text-center">No quizzes found.</div>
       <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
         <div 
-          v-for="quiz in quizzes" 
+          v-for="quiz in paginatedQuizzes" 
           :key="quiz.id" 
           class="border rounded-lg p-4 shadow h-56 cursor-pointer" 
           @click="selectQuiz(quiz)"
@@ -31,7 +31,9 @@
           }"
         >
           <div class="bg-black bg-opacity-50 p-4 rounded">
-            <h2 class="text-lg font-semibold text-white">{{ quiz.title }}</h2>
+            <router-link :to="`/userquiz/${quiz.id}`" class="text-blue-600">
+            {{ quiz.title }}
+          </router-link>
             <p class="text-sm text-gray-200 break-all h-10 overflow-hidden">{{ quiz.description }}</p>
             <p class="text-xs text-gray-300">Category: {{ quiz.category.name }}</p>
             <!-- Update and Delete Buttons -->
@@ -43,6 +45,17 @@
             </button>
           </div>
         </div>
+      </div>
+
+      <!-- Pagination -->
+      <div class="mt-4 flex justify-center">
+        <button @click="prevPage" :disabled="currentPage === 1" class="px-4 py-2 bg-gray-300 rounded-l-md hover:bg-gray-400">
+          Previous
+        </button>
+        <span class="px-4 py-2 bg-white border border-gray-300">{{ currentPage }} / {{ totalPages }}</span>
+        <button @click="nextPage" :disabled="currentPage === totalPages" class="px-4 py-2 bg-gray-300 rounded-r-md hover:bg-gray-400">
+          Next
+        </button>
       </div>
     </div>
 
@@ -118,7 +131,7 @@
 import axios from '@/plugins/axios';
 import { mapGetters } from 'vuex';
 import Swal from 'sweetalert2'; // Import SweetAlert2
-// import QuizDetailView from './QuizDetails2.vue'; // Update the import statement
+
 export default {
   data() {
     return {
@@ -133,6 +146,8 @@ export default {
         image: null,
       },
       currentQuiz: null, // Holds the quiz currently being updated
+      currentPage: 1,
+      quizzesPerPage: 12, // Set the number of quizzes per page
     };
   },
   computed: {
@@ -140,6 +155,14 @@ export default {
     ...mapGetters('categories', ['allCategories']),
     categories() {
       return this.allCategories;
+    },
+    totalPages() {
+      return Math.ceil(this.quizzes.length / this.quizzesPerPage);
+    },
+    paginatedQuizzes() {
+      const start = (this.currentPage - 1) * this.quizzesPerPage;
+      const end = start + this.quizzesPerPage;
+      return this.quizzes.slice(start, end);
     }
   },
   methods: {
@@ -162,26 +185,14 @@ export default {
     },
     closeCreateModal() {
       this.showCreateModal = false;
-      this.resetNewQuiz();
     },
     openUpdateModal(quiz) {
-      this.currentQuiz = { ...quiz }; // Clone the quiz object
+      this.currentQuiz = { ...quiz };
       this.showUpdateModal = true;
     },
     closeUpdateModal() {
       this.showUpdateModal = false;
-      this.currentQuiz = null; // Reset current quiz
-    },
-    resetNewQuiz() {
-      this.newQuiz = {
-        title: '',
-        category_id: '',
-        description: '',
-        image: null,
-      };
-    },
-    selectQuiz(quiz) {
-      this.selectedQuiz = quiz;
+      this.currentQuiz = null; // Clear the currentQuiz state when modal is closed
     },
     resetView() {
       this.selectedQuiz = null;
@@ -196,13 +207,13 @@ export default {
           formData.append('image', this.newQuiz.image);
         }
 
-        await axios.post('quizzes', formData);
-        Swal.fire('Success!', 'Quiz created successfully.', 'success');
-        this.closeCreateModal();
+        await axios.post('/quizzes', formData);
+        Swal.fire('Quiz created successfully!', '', 'success'); // Show success message
         this.fetchQuizzes();
+        this.closeCreateModal();
       } catch (error) {
         console.error('Error creating quiz:', error);
-        Swal.fire('Error!', 'Failed to create quiz.', 'error');
+        Swal.fire('Error', 'Failed to create quiz. Please try again.', 'error'); // Show error message
       }
     },
     async updateQuiz() {
@@ -215,45 +226,64 @@ export default {
           formData.append('image', this.currentQuiz.image);
         }
 
-        await axios.put(`quizzes/${this.currentQuiz.id}`, formData);
-        Swal.fire('Success!', 'Quiz updated successfully.', 'success');
-        this.closeUpdateModal();
+        await axios.post(`/quizzes/${this.currentQuiz.id}`, formData);
+        Swal.fire('Quiz updated successfully!', '', 'success'); // Show success message
         this.fetchQuizzes();
+        this.closeUpdateModal();
       } catch (error) {
         console.error('Error updating quiz:', error);
-        Swal.fire('Error!', 'Failed to update quiz.', 'error');
+        Swal.fire('Error', 'Failed to update quiz. Please try again.', 'error'); // Show error message
       }
+    },
+    onFileChange(e) {
+      const file = e.target.files[0];
+      this.newQuiz.image = file;
+    },
+    onFileChangeUpdate(e) {
+      const file = e.target.files[0];
+      this.currentQuiz.image = file;
     },
     async deleteQuiz(quizId) {
       try {
-        await axios.delete(`quizzes/${quizId}`);
-        Swal.fire('Deleted!', 'Quiz has been deleted.', 'success');
-        this.fetchQuizzes();
+        const confirmed = await Swal.fire({
+          title: 'Are you sure?',
+          text: 'Do you want to delete this quiz?',
+          icon: 'warning',
+          showCancelButton: true,
+          confirmButtonText: 'Yes, delete it!',
+          cancelButtonText: 'Cancel'
+        });
+        if (confirmed.isConfirmed) {
+          await axios.delete(`/quizzes/${quizId}`);
+          Swal.fire('Quiz deleted!', '', 'success');
+          this.fetchQuizzes();
+        }
       } catch (error) {
         console.error('Error deleting quiz:', error);
-        Swal.fire('Error!', 'Failed to delete quiz.', 'error');
+        Swal.fire('Error', 'Failed to delete quiz. Please try again.', 'error'); // Show error message
       }
     },
-    onFileChange(event) {
-      const file = event.target.files[0];
-      if (file) {
-        this.newQuiz.image = file;
+    prevPage() {
+      if (this.currentPage > 1) {
+        this.currentPage--;
       }
     },
-    onFileChangeUpdate(event) {
-      const file = event.target.files[0];
-      if (file) {
-        this.currentQuiz.image = file;
+    nextPage() {
+      if (this.currentPage < this.totalPages) {
+        this.currentPage++;
       }
     },
+    selectQuiz(quiz) {
+      this.selectedQuiz = quiz;
+    }
   },
   mounted() {
     this.fetchQuizzes();
     this.fetchCategories();
-  },
+  }
 };
 </script>
 
 <style scoped>
-/* Add any custom styles here */
+/* Add custom styles here if needed */
 </style>

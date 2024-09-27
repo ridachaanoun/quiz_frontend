@@ -27,7 +27,7 @@
         </button>
 
         <!-- Followers Modal -->
-        <div v-if="showFollowersModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+        <div v-if="showFollowersModal" class="fixed z-50 inset-0 bg-black bg-opacity-50 flex items-center justify-center ">
           <div class="bg-white p-6 rounded shadow-lg w-96">
             <h3 class="text-xl font-bold mb-4">Followers</h3>
             <ul>
@@ -36,7 +36,7 @@
                   <img :src="follower.profile_picture ? `http://127.0.0.1:8000${follower.profile_picture}` : 'http://127.0.0.1:8000/storage/default-profile.png'" alt="Profile Picture" class="w-16 h-16 rounded-full object-cover" />
                 </a>
                 <div>
-                  <p class="font-semibold">{{ follower.name }}</p>
+                  <p class="text-orange-500">{{ follower.name }}</p>
                 </div>
               </li>
             </ul>
@@ -58,12 +58,12 @@
       <!-- Display Quizzes with Pagination -->
       <div v-if="paginatedQuizzes.length" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
         <div v-for="quiz in paginatedQuizzes" :key="quiz.id" :style="{ backgroundImage: `url('http://127.0.0.1:8000/storage/${quiz.image}')` }" 
-             class="relative bg-cover bg-center h-64 rounded-md overflow-hidden cursor-pointer transition-transform transform hover:scale-105"
+                class="relative bg-cover bg-center h-64 rounded-md overflow-hidden cursor-pointer transition-transform transform hover:scale-105 z-10"
              @click="goToQuizDetails(quiz.id)">
           <div class="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center text-white p-4">
             <div>
               <h2 class="text-lg font-semibold">{{ quiz.title }}</h2>
-              <p class="text-sm">{{ quiz.description }}</p>
+              <p class="text-sm break-all overflow-hidden h-16">{{ quiz.description }}</p>
             </div>
           </div>
         </div>
@@ -181,6 +181,16 @@ export default {
         console.error('Error toggling follow status:', error);
       }
     },
+    async showFollowers() {
+        const userId = this.$route.params.userId;
+        try {
+          const response = await axios.get(`http://127.0.0.1:8000/api/followers/${userId}`);
+          this.followers = response.data.followers;
+          this.showFollowersModal = true;
+        } catch (error) {
+          console.error('Error fetching followers:', error);
+        }
+      },
     goToQuizDetails(id) {
       this.$router.push({ name: 'QuizDetails', params: { id } });
     }
