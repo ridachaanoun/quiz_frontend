@@ -47,18 +47,25 @@
         </div>
       </div>
     </nav>
-    <router-view />
+    <router-view  />
+  </div>
+  
+  <!-- Conditionally Render Footer -->
+  <div v-if="!isDashboard">
+    <AppFooter />
   </div>
 </template>
 
 <script>
 import { mapGetters, mapActions } from "vuex";
 import NotificationBell from "@/components/NotificationBell";
+import AppFooter from "@/components/AppFooter"; // Import the footer component
 
 export default {
   name: "App",
   components: {
     NotificationBell,
+    AppFooter, // Register the footer component
   },
   data() {
     return {
@@ -70,6 +77,9 @@ export default {
     isSmallScreen() {
       return window.innerWidth < 1024; // Detect if the screen is smaller than the lg breakpoint
     },
+    isDashboard() {
+      return this.$route.path === '/dashboard'; // Check if current route is 'user-dashboard'
+    }
   },
   methods: {
     ...mapActions("auth", ["logout"]),
