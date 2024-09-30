@@ -2,7 +2,7 @@
   <div v-if="currentQuiz" class=" mx-auto p-6">
     <h1 class="text-3xl font-bold mb-4 text-gray-800">{{ currentQuiz.title }}</h1>
     <img
-      :src="`http://127.0.0.1:8000/storage/${currentQuiz.image}`"
+       :src="currentQuiz.image ? `http://127.0.0.1:8000/storage/${currentQuiz.image}` : require('../assets/download.jpeg')"
       alt="Quiz Image"
       class="w-full h-auto rounded-lg shadow-lg mb-4"
     />

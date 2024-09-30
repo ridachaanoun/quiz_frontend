@@ -1,5 +1,5 @@
 <template>
-    <div v-if="currentQuiz" class="min-h-screen bg-gradient-to-r mt-16p-6">
+    <div v-if="currentQuiz" class="min-h-screen bg-gradient-to-r mt-16 p-6">
       <div class="container mx-auto max-w-4xl p-6 bg-white shadow-lg rounded-lg">
         <!-- Quiz Title -->
         <h1 class="text-4xl font-bold text-gray-800 text-center mb-8">{{ currentQuiz.title }}</h1>

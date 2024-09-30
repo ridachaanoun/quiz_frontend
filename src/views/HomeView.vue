@@ -1,5 +1,5 @@
 <template>
-  <div class="home bg-gray-200" >
+  <div class="home bg-gray-200 pb-11" >
     <div v-if="loading" class="flex justify-center items-center h-screen">
       <div class="spinner-border animate-spin inline-block w-8 h-8 border-4 rounded-full" role="status">
       </div>
@@ -39,7 +39,7 @@
           <div class="p-4 absolute inset-0 bg-black bg-opacity-50 flex items-center justify-between">
             <div class="text-white" @click="goToQuizDetails(quiz.id)">
               <h2 class="text-lg font-semibold cursor-pointer">{{ quiz.title }}</h2>
-              <p>{{ quiz.description }}</p>
+              <p  class="w-[220px] h-[120px] break-words overflow-hidden">{{ quiz.description }}</p>
             </div>
           </div>
         </div>
@@ -137,6 +137,9 @@ export default {
         .finally(() => {
           this.loading = false;
         });
+    },
+    scrollToTop() {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     },
   },
 };

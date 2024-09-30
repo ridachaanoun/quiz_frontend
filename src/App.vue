@@ -78,7 +78,8 @@ export default {
       return window.innerWidth < 1024; // Detect if the screen is smaller than the lg breakpoint
     },
     isDashboard() {
-      return this.$route.path === '/dashboard'; // Check if current route is 'user-dashboard'
+      const hiddenPages = ['/dashboard', '/login', '/register'];
+      return hiddenPages.includes(this.$route.path); // Check if the current route matches one of the hidden pages
     }
   },
   methods: {

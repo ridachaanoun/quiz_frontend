@@ -1,6 +1,6 @@
 <template>
     <!-- Full-width Footer -->
-    <footer class="bg-gray-900 text-white py-10 mt-16 ">
+    <footer class="bg-gray-900 text-white py-10 ">
       <!-- Social media section -->
       <section class="flex justify-center space-x-6 py-4 border-b border-gray-700">
         <a href="#" class="text-gray-400 hover:text-white transition-colors duration-200">

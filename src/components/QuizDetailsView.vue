@@ -21,7 +21,7 @@
 
       <!-- Quiz Image -->
       <img
-        :src="`http://127.0.0.1:8000/storage/${quiz.image}`"
+        :src="quiz.image ? `http://127.0.0.1:8000${quiz.image}` : require('../assets/download.jpeg')"
         alt="Quiz Image"
         class="mt-4 w-full max-w-md mx-auto rounded-lg shadow-lg"
       />
@@ -29,7 +29,7 @@
       <!-- Quiz Creator Info -->
       <div v-if="quizCreatorProfile" class="mt-4 flex items-center justify-center">
         <img
-          :src="`http://127.0.0.1:8000${quizCreatorProfile.profile_picture_url}`"
+        :src="quizCreatorProfile.profile_picture_url ? `http://127.0.0.1:8000${quizCreatorProfile.profile_picture_url}` : require('../assets/default user profile.jpg')"
           alt="Profile Picture"
           class="w-12 h-12 rounded-full mr-4 cursor-pointer"
           @click="goToUserProfile(quizCreatorProfile.user.id)"
@@ -89,7 +89,8 @@ export default {
     async fetchQuiz() {
       await this.fetchQuizById(this.id);
       this.quiz = this.currentQuiz;
-      this.backgroundImage = `http://127.0.0.1:8000/storage/${this.quiz?.image}`;
+      
+      this.backgroundImage = this.quiz?.image ? `http://127.0.0.1:8000/storage/${this.quiz.image}` : require('../assets/download.jpeg');
     },
     goBack() {
       this.$router.go(-1);

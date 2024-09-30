@@ -101,6 +101,8 @@ export default {
       return `http://localhost:8000/storage/${imagePath}`;
     },
     changePage(page) {
+      window.scrollTo({top: 0,behavior: 'smooth' // Optional for a smooth scrolling effect
+    });
       if (page >= 1 && page <= this.totalPages) {
         this.currentPage = page;
       }

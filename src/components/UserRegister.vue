@@ -37,6 +37,7 @@
             placeholder="Enter your password"
             required
           />
+          <span v-if="errors.password" class="text-red-600 text-sm">{{ errors.password[0] }}</span>
         </div>
         <div class="flex flex-col">
           <label for="password_confirmation" class="text-base font-medium">Confirm Password</label>
@@ -48,6 +49,7 @@
             placeholder="Confirm your password"
             required
           />
+          <span v-if="errors.password_confirmation" class="text-red-600 text-sm">{{ errors.password_confirmation[0] }}</span>
         </div>
         <div class="mt-6">
           <button
@@ -83,9 +85,9 @@ export default {
     async handleRegister() {
       try {
         if (this.password !== this.password_confirmation) {
-          alert('Passwords do not match.');
-          return;
-        }
+        this.errors.password_confirmation = ['Passwords do not match.'];
+        return;
+      }
         await this.register({ 
           name: this.name, 
           email: this.email, 

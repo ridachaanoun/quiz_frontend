@@ -3,7 +3,7 @@
     <!-- Profile Picture Section -->
     <div class="relative inline-block">
       <img
-        :src="`http://127.0.0.1:8000${userProfile.profile_picture_url}`"
+        :src="userProfile.profile_picture_url ? `http://127.0.0.1:8000${userProfile.profile_picture_url}` : require('../assets/default user profile.jpg')"
         alt="Profile Picture"
         class="w-32 h-32 rounded-full object-cover border-4 border-gray-600 shadow-lg"
       />
