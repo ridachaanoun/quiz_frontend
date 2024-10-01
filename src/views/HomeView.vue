@@ -123,9 +123,11 @@ export default {
       this.$router.push({ name: 'QuizDetails', params: { id } });
     },
     prevPage() {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
       if (this.currentPage > 1) this.currentPage--;
     },
     nextPage() {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
       if (this.currentPage < this.totalPages) this.currentPage++;
     },
     changePage(page) {
@@ -137,9 +139,6 @@ export default {
         .finally(() => {
           this.loading = false;
         });
-    },
-    scrollToTop() {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
     },
   },
 };
